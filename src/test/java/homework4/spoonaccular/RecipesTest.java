@@ -1,86 +1,49 @@
-package homework3.spoonaccular;
+package homework4.spoonaccular;
 
 import homework3.*;
-import io.restassured.RestAssured;
-import net.javacrumbs.jsonunit.JsonAssert;
-import net.javacrumbs.jsonunit.core.Option;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
 
-public class RecipesTest {
-
-    private static final String API_KEY = "74a729b59b874544b218c6218a46b1c5";
-
-    @BeforeAll
-    static void beforeAll() {
-        RestAssured.baseURI = "https://api.spoonacular.com/recipes/";
-    }
-
+public class RecipesTest extends SpoonaccularTest {
     @Test
-    void testAutocompleteSearch() throws IOException {
+    void testAutocompleteSearch() throws Exception {
 
         String actually = given()
-                .log()
-                .all()
-                .param("apiKey", API_KEY)
                 .param("query", "burger")
                 .param("number", "10")
                 .expect()
-                .log()
-                .all()
                 .when()
-                .get("autocomplete")
+                .get("recipes/autocomplete")
                 .body()
                 .prettyPrint();
 
-        String expected = getResourceAsString("testAutocomplete/expected.json");
-
-        JsonAssert.assertJsonEquals(
-                expected,
-                actually,
-                JsonAssert.when(Option.IGNORING_ARRAY_ORDER)
-        );
+        String expected = getResource("expected.json");
+        assertJson(expected, actually);
     }
 
     @Test
     void testNutritionById() {
         given()
-                .log()
-                .all()
-                .param("apiKey", API_KEY)
                 .pathParams("id", 1003464)
                 .expect()
-                .log()
-                .body()
                 .body("calories", is("316k"))
                 .body("carbs", is("49g"))
                 .body("fat", is("12g"))
                 .body("protein", is("3g"))
                 .when()
-                .get("{id}/nutritionWidget.json");
-
+                .get("recipes/{id}/nutritionWidget.json");
     }
 
     @Test
     void testSummarizeRecipe() {
         SummarizeRecipe response = given()
-                .log()
-                .all()
-                .param("apiKey", API_KEY)
                 .pathParams("id", 4632)
                 .expect()
-                .log()
-                .body()
                 .when()
-                .get("{id}/summary")
+                .get("recipes/{id}/summary")
                 .as(SummarizeRecipe.class);
 
         Assertions.assertNotNull(response);
@@ -97,33 +60,25 @@ public class RecipesTest {
         Dish targetDish = new Dish("https://spoonacular.com/cdn/ingredients_100x100/salmon.png", "salmon");
 
         AnalyzeResponse response = given()
-                .log()
-                .all()
-                .param("apiKey", API_KEY)
                 .param("q", "salmon with fusilli and no nuts")
                 .expect()
-                .log()
-                .body()
                 .when()
-                .get("queries/analyze")
+                .get("recipes/queries/analyze")
                 .as(AnalyzeResponse.class);
 
         Assertions.assertNotNull(response);
         Assertions.assertNotNull(response.getIngredients());
         Assertions.assertNotNull(response.getDishes());
-        Assertions.assertEquals(2, response.getIngredients().size());
+        Assertions.assertEquals(1, response.getIngredients().size());
         Assertions.assertEquals(1, response.getDishes().size());
 
-        Ingredient ingredient1 = response.getIngredients().get(0);
-        Ingredient ingredient2 = response.getIngredients().get(1);
+        System.out.println("Ingredients: " + response.getIngredients());
 
-        Assertions.assertEquals("fusilli", ingredient1.getName());
-        Assertions.assertEquals(true, ingredient1.getInclude());
-        Assertions.assertEquals("fusilli.jpg", ingredient1.getImage());
+        Ingredient ingredient = response.getIngredients().get(0);
 
-        Assertions.assertEquals("nuts mixed", ingredient2.getName());
-        Assertions.assertEquals(false, ingredient2.getInclude());
-        Assertions.assertEquals("nuts-mixed.jpg", ingredient2.getImage());
+        Assertions.assertEquals("nuts mixed", ingredient.getName());
+        Assertions.assertEquals(false, ingredient.getInclude());
+        Assertions.assertEquals("nuts-mixed.jpg", ingredient.getImage());
 
         response.getDishes()
                 .stream()
@@ -139,18 +94,13 @@ public class RecipesTest {
         String targetUnit = "grams";
         Double sourceAmount = 2.5;
         ConvertResponse convertResponse = given()
-                .log()
-                .all()
-                .param("apiKey", API_KEY)
                 .param("ingredientName", "flour")
                 .param("sourceAmount", sourceAmount)
                 .param("sourceUnit", sourceUnit)
                 .param("targetUnit", targetUnit)
                 .expect()
-                .log()
-                .body()
                 .when()
-                .get("convert")
+                .get("recipes/convert")
                 .as(ConvertResponse.class);
 
         Assertions.assertNotNull(convertResponse);
@@ -160,12 +110,5 @@ public class RecipesTest {
         Assertions.assertEquals(targetUnit, convertResponse.getTargetUnit());
         Assertions.assertTrue(convertResponse.getAnswer().contains("2.5 cups flour"));
         Assertions.assertTrue(convertResponse.getAnswer().contains("312.5 grams"));
-    }
-
-    public String getResourceAsString(String resource) throws IOException {
-        InputStream stream = getClass().getResourceAsStream(resource);
-        assert stream != null;
-        byte[] bytes = stream.readAllBytes();
-        return new String(bytes, StandardCharsets.UTF_8);
     }
 }
