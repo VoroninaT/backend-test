@@ -2,11 +2,12 @@ package homework4.spoonaccular;
 
 import homework3.*;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
-
+@Disabled
 public class RecipesTest extends SpoonaccularTest {
     @Test
     void testAutocompleteSearch() throws Exception {
