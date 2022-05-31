@@ -16,7 +16,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
 
         SqlSessionFactory sessionFactory = new SqlSessionFactoryBuilder()
-                .build(Resources.getResourceAsStream("homework6/myBatisConfig.xml"));
+                .build(Resources.getResourceAsStream("myBatisConfig.xml"));
 
         try (SqlSession session = sessionFactory.openSession()) {
             ProductsMapper productsMapper = session.getMapper(ProductsMapper.class);
