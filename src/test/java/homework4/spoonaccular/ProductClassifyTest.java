@@ -1,9 +1,10 @@
 package homework4.spoonaccular;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
-
+@Disabled
 public class ProductClassifyTest extends SpoonaccularTest {
 
     @Test
