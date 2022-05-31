@@ -61,6 +61,7 @@ public class MarketTest extends AbstractTest {
     void testDeleteProduct() throws Exception {
         Response<Void> response = service.deleteProduct(399);
         Assertions.assertEquals(200, response.code());
+        System.out.println("Hello world");
     }
 }
 

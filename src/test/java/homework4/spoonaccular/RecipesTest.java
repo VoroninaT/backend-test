@@ -110,5 +110,6 @@ public class RecipesTest extends SpoonaccularTest {
         Assertions.assertEquals(targetUnit, convertResponse.getTargetUnit());
         Assertions.assertTrue(convertResponse.getAnswer().contains("2.5 cups flour"));
         Assertions.assertTrue(convertResponse.getAnswer().contains("312.5 grams"));
+        System.out.println("Hello world");
     }
 }
